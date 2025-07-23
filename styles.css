@@ -1,0 +1,13 @@
+#locate-btn {
+    position: fixed;
+    top: 80px;
+    left: 24px;
+    z-index: 1000;
+    background-color: #ffffff;
+    color: rgb(4, 4, 4);
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+}
