@@ -491,47 +491,42 @@ var userMarkerIcon = L.AwesomeMarkers.icon({
 
 // แสดงตำแหน่งปัจจุบัน พร้อมเส้นปะ
 function locateUser() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
+    // พิกัดใหม่ที่ต้องการ
+    const lat = 13.84394139309968;
+    const lon = 100.56978562976161;
 
-            if (mainMarker) map_6e6f34d461c67ea29b74817bdfa4a1a5.removeLayer(mainMarker);
-            if (mainLine) map_6e6f34d461c67ea29b74817bdfa4a1a5.removeLayer(mainLine);
+    if (mainMarker) map_6e6f34d461c67ea29b74817bdfa4a1a5.removeLayer(mainMarker);
+    if (mainLine) map_6e6f34d461c67ea29b74817bdfa4a1a5.removeLayer(mainLine);
 
-            // เส้นปะจาก epicenter ไปยังตำแหน่งปัจจุบัน
-            mainLine = L.polyline([epicenter, [lat, lon]], {
-                color: 'orange',
-                weight: 2,
-                dashArray: '6,10',
-                opacity: 0.8
-            }).addTo(map_6e6f34d461c67ea29b74817bdfa4a1a5);
+    // เส้นปะจาก epicenter ไปยังตำแหน่งนี้
+    mainLine = L.polyline([epicenter, [lat, lon]], {
+        color: 'orange',
+        weight: 2,
+        dashArray: '6,10',
+        opacity: 0.8
+    }).addTo(map_6e6f34d461c67ea29b74817bdfa4a1a5);
 
-            const pga = getNearestPGA(lat, lon);
-            const levelText = getPgaLevelText(pga);
-            const distance = haversine(epicenter[0], epicenter[1], lat, lon).toFixed(2);
+    // กำหนด PGA ให้สูงเสมอ
+    const pga = 10; // หรือค่ามากกว่า 9.2
+    const levelText = 'แรงสั่นสะเทือนอยู่ในระดับ: <b>สูง</b>';
+    const distance = haversine(epicenter[0], epicenter[1], lat, lon).toFixed(2);
 
-            mainMarker = L.marker([lat, lon], {icon: userMarkerIcon})
-                .addTo(map_6e6f34d461c67ea29b74817bdfa4a1a5)
-                .bindPopup(`
-                    <b>ตำแหน่งที่คุณอยู่</b><br>
-                    Lat: <b>${lat.toFixed(5)}</b><br>
-                    Lon: <b>${lon.toFixed(5)}</b><br>
-                    ระยะห่างจากศูนย์กลาง: <b>${distance} กม.</b><br>
-                    PGA: <b>${typeof pga === 'number' ? pga.toFixed(3) + ' %g' : pga}</b><br>
-                    ${levelText}
-                `)
-                .openPopup();
-            map_6e6f34d461c67ea29b74817bdfa4a1a5.setView([lat, lon], 15);
-        }, function() {
-            alert('ไม่สามารถระบุตำแหน่งของคุณได้');
-        });
-    } else {
-        alert('เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง');
-    }
+    mainMarker = L.marker([lat, lon], {icon: userMarkerIcon})
+        .addTo(map_6e6f34d461c67ea29b74817bdfa4a1a5)
+        .bindPopup(`
+            <b>ตำแหน่งที่คุณอยู่</b><br>
+            Lat: <b>${lat.toFixed(8)}</b><br>
+            Lon: <b>${lon.toFixed(8)}</b><br>
+            ระยะห่างจากศูนย์กลาง: <b>${distance} กม.</b><br>
+            PGA: <b>${pga.toFixed(3)} %g</b><br>
+            ${levelText}
+        `)
+        .openPopup();
+    map_6e6f34d461c67ea29b74817bdfa4a1a5.setView([lat, lon], 15);
 }
 
-$('#locate-btn').on('click', locateUser);
+// ผูกปุ่มกับฟังก์ชันใหม่
+$('#locate-btn').off('click').on('click', locateUser);
 
 // คลิกบนแผนที่เพื่อแสดง marker และ popup
 map_6e6f34d461c67ea29b74817bdfa4a1a5.on('click', function(e) {
