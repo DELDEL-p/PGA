@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    
+   <!-- 1. เพิ่มไฟล์ SDK Firestore ใน <head> -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -14,6 +16,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
     
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             <style>
@@ -189,10 +192,18 @@
     <div class="folium-map" id="map_6e6f34d461c67ea29b74817bdfa4a1a5" ></div>
         
 </body>
-<script>
-
-    
-        
+<script>      
+            const firebaseConfig = {
+            apiKey: "AIzaSyB3hdNequpq1BUT9Bzg-HobLCTtdRDTAEA",
+            authDomain: "shakemap-d69a8.firebaseapp.com",
+            projectId: "shakemap-d69a8",
+            storageBucket: "shakemap-d69a8.appspot.com",
+            messagingSenderId: "626217349401",
+            appId: "1:626217349401:web:597f8aaaac1c0bb2e49588",
+            measurementId: "G-GSMPT2MS6R"
+            };
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
             var map_6e6f34d461c67ea29b74817bdfa4a1a5 = L.map(
                 "map_6e6f34d461c67ea29b74817bdfa4a1a5",
                 {
@@ -399,17 +410,44 @@ function showLocation(lat, lon, label) {
     var levelText = getPgaLevelText(pga);
     var distance = haversine(epicenter[0], epicenter[1], lat, lon).toFixed(2);
 
-    var popupContent = `
+   var popupContent = `
         <b>${label}</b><br>
         Lat: <b>${lat.toFixed(5)}</b><br>
         Lon: <b>${lon.toFixed(5)}</b><br>
         ระยะห่างจากศูนย์กลาง: <b>${distance} กม.</b><br>
         PGA: <b>${typeof pga === 'number' ? pga.toFixed(3) + ' %g' : pga}</b><br>
         ${levelText}
+        <br>
+        <button id="mud-btn" style="margin-top:8px;background:#ffe066;border:none;border-radius:8px;padding:6px 18px;font-size:16px;cursor:pointer;">เลือกที่นี่!</button>
     `;
     mainMarker = L.marker([lat, lon]).addTo(map_6e6f34d461c67ea29b74817bdfa4a1a5)
         .bindPopup(popupContent).openPopup();
     map_6e6f34d461c67ea29b74817bdfa4a1a5.setView([lat, lon], 15);
+
+    setTimeout(function() {
+        const mudBtn = document.getElementById('mud-btn');
+        if (mudBtn) {
+            mudBtn.onclick = function() {
+                let name = prompt("กรุณาใส่ชื่อของคุณ (หรือชื่อเล่น):");
+                if (!name) return;
+                // สุ่ม emoji
+                const ems = ['🦦','🐻','🐱','🐶','🦊','🐧','🦥','🦝','🐰','🐥','🦄','🐼','🦉','🐻‍❄️'];
+                const emoji = ems[Math.floor(Math.random() * ems.length)];
+                db.collection("mud").add({
+                    name: name,
+                    place: label,
+                    lat: lat,
+                    lon: lon,
+                    emoji: emoji,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    alert("เลือกที่นี่!สำเร็จ! ไปดูในหน้าโชว์ได้เลย");
+                }).catch(error => {
+                    alert("เกิดข้อผิดพลาด: " + error);
+                });
+            }
+        }
+    }, 400);
 }
 
 // --- ค้นหาด้วย Enter หรือปุ่ม ---
