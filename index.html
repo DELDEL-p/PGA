@@ -3,6 +3,7 @@
 <head>
    <!-- 1. เพิ่มไฟล์ SDK Firestore ใน <head> -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
@@ -441,7 +442,7 @@ function showLocation(lat, lon, label) {
                     emoji: emoji,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 }).then(() => {
-                    alert("เลือกที่นี่!สำเร็จ! ไปดูในหน้าโชว์ได้เลย");
+                    alert("เลือกที่นี่!สำเร็จ! ขอบคุณที่แจ้งข้อมูล");
                 }).catch(error => {
                     alert("เกิดข้อผิดพลาด: " + error);
                 });
