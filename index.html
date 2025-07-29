@@ -389,6 +389,8 @@ function getPgaLevelText(pga) {
 
 let mainMarker = null;
 let mainLine = null; // เส้นปะ
+let userMarker = null; // สำหรับตำแหน่งปัจจุบัน
+let userLine = null;
 const epicenter = [14.9, 99.14]; // จุดศูนย์กลาง
 
 function showLocation(lat, lon, label) {
@@ -442,6 +444,7 @@ function showLocation(lat, lon, label) {
                     emoji: emoji,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 }).then(() => {
+                    showMudMarker(lat, lon, name, emoji, label); // <<-- เพิ่มบรรทัดนี้
                     alert("เลือกที่นี่!สำเร็จ! ขอบคุณที่แจ้งข้อมูล");
                 }).catch(error => {
                     alert("เกิดข้อผิดพลาด: " + error);
@@ -490,28 +493,27 @@ var userMarkerIcon = L.AwesomeMarkers.icon({
 
 
 // แสดงตำแหน่งปัจจุบัน พร้อมเส้นปะ
+
 function locateUser() {
-    // พิกัดใหม่ที่ต้องการ
     const lat = 13.84394139309968;
     const lon = 100.56978562976161;
 
-    if (mainMarker) map_6e6f34d461c67ea29b74817bdfa4a1a5.removeLayer(mainMarker);
-    if (mainLine) map_6e6f34d461c67ea29b74817bdfa4a1a5.removeLayer(mainLine);
+    // ลบ userMarker/userLine เก่า (ถ้ามี)
+    if (userMarker) map_6e6f34d461c67ea29b74817bdfa4a1a5.removeLayer(userMarker);
+    if (userLine) map_6e6f34d461c67ea29b74817bdfa4a1a5.removeLayer(userLine);
 
-    // เส้นปะจาก epicenter ไปยังตำแหน่งนี้
-    mainLine = L.polyline([epicenter, [lat, lon]], {
+    userLine = L.polyline([epicenter, [lat, lon]], {
         color: 'orange',
         weight: 2,
         dashArray: '6,10',
         opacity: 0.8
     }).addTo(map_6e6f34d461c67ea29b74817bdfa4a1a5);
 
-    // กำหนด PGA ให้สูงเสมอ
-    const pga = 10; // หรือค่ามากกว่า 9.2
+    const pga = 10;
     const levelText = 'แรงสั่นสะเทือนอยู่ในระดับ: <b>สูง</b>';
     const distance = haversine(epicenter[0], epicenter[1], lat, lon).toFixed(2);
 
-    mainMarker = L.marker([lat, lon], {icon: userMarkerIcon})
+    userMarker = L.marker([lat, lon], {icon: userMarkerIcon})
         .addTo(map_6e6f34d461c67ea29b74817bdfa4a1a5)
         .bindPopup(`
             <b>ตำแหน่งที่คุณอยู่</b><br>
@@ -528,6 +530,24 @@ function locateUser() {
 // ผูกปุ่มกับฟังก์ชันใหม่
 $('#locate-btn').off('click').on('click', locateUser);
 
+function showMudMarker(lat, lon, name, place) {
+    L.marker([lat, lon], {
+        icon: L.AwesomeMarkers.icon({
+            icon: 'star',
+            markerColor: 'green',
+            prefix: 'fa',
+            extraClasses: '',
+            iconColor: 'white'
+        })
+    }).addTo(map_6e6f34d461c67ea29b74817bdfa4a1a5)
+    .bindPopup(`
+         <b>ตำแหน่งที่เลือก</b><br>
+         <b>${name}</b><br>
+         <small>${place}</small><br>
+         Lat: <b>${lat.toFixed(5)}</b><br>
+         Lon: <b>${lon.toFixed(5)}</b>
+    `);
+}
 // คลิกบนแผนที่เพื่อแสดง marker และ popup
 map_6e6f34d461c67ea29b74817bdfa4a1a5.on('click', function(e) {
     const lat = e.latlng.lat;
